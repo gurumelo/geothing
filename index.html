@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0"/>
+	<style type="text/css">
+		html, body {
+			margin: 0 auto;
+			padding: 0;
+			width: 100%;
+			height: 100%;
+			text-align: center;
+		}
+		#contenedor {
+			position: relative;
+		}
+		#contenedor, #map {
+			width: 100%;
+			height: 100%;
+			background: #b5d0d0;
+		}
+		#cargando {
+			position: absolute;
+			top: 0;
+			right: 0;
+			background: #000000;
+			color: #ffffff;
+			padding: 10px 10px 12px 15px;
+			border-bottom-left-radius: 10px;			
+			z-index: 9999;
+		}
+
+		@keyframes spin {
+			from { transform: rotate(0deg); }
+			to { transform: rotate(360deg); }
+		}
+		.spinner {
+			animation: spin 1s infinite linear;
+		}
+	</style>
+	<link rel="stylesheet" href="l/leaflet.css" />
+	<link rel="stylesheet" href="css/bootstrap-glyphicons.css" />
+</head>
+<body>
+	<div id="contenedor">
+		<div id="cargando">
+			<div class="spinner">
+				<span class="glyphicon glyphicon-repeat"></span>
+			</div>
+		</div>
+		<div id="map"></div>
+	</div>
+	<script src="l/leaflet.js"></script>
+	<script src="js/jquery-2.0.3.min.js"></script>
+	<script>
+		// Se dibuja mapa
+		var map = L.map('map').setView([32.39852, -11.25], 3);
+		L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+			maxZoom: 18,
+			attribution: ' <a href="http://openstreetmap.org">OpenStreetMap</a>'
+		}).addTo(map);
+		// función que envia la y lo al servidor
+		function enviarLalo(la,lo) {
+			$.ajax({
+				type: 'POST',
+				url: 'http://*************/geothing/php/recibe.php',
+				data: { latitud: la, longitud: lo, llave: '1234' }
+			}).done( function(respuesta) {
+				if( respuesta == 1 ) {
+					$('#cargando').hide().html('<span class="glyphicon glyphicon-thumbs-up"></span>').slideDown(300).delay(1000).slideUp(300);
+				}
+				if( respuesta == 2 ) {
+					$('#cargando').hide().html('<span class="glyphicon glyphicon-thumbs-down"></span>').slideDown(300).delay(1000).slideUp(300);
+				}
+			}).fail( function() {
+				$('#cargando').hide().html('<span class="glyphicon glyphicon-thumbs-down"></span>').slideDown(300).delay(1000).slideUp(300);
+			});
+		}
+		// Si no está el gps activado, se avisa, en caso contrario, se procede a empezar a mirar posición
+		if(!navigator.geolocation) {
+			alert('GPS desactivado');
+		}
+		else {
+			var primeravuelta = true,
+				marker;
+			function geoObtenida(position) {
+				if (primeravuelta) {
+					marker = L.marker([position.coords.latitude, position.coords.longitude]).addTo(map);
+					map.setView([position.coords.latitude, position.coords.longitude], 17);
+					primeravuelta = false;
+					$('#cargando').fadeOut('slow');
+				}
+				else {
+					marker.setLatLng([position.coords.latitude, position.coords.longitude]);
+					map.panTo([position.coords.latitude, position.coords.longitude]);
+				}
+				// subir posición al servidor
+				enviarLalo(position.coords.latitude, position.coords.longitude);
+			}
+			function geoError() {
+				alert("No se ha podido obtener posición");
+			}
+			var geo_opciones = {
+				enableHighAccuracy: true,
+				maximumAge        : 0
+			};
+			var wpid = navigator.geolocation.watchPosition(geoObtenida, geoError, geo_opciones);
+		}
+	</script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+{ 
+	"name": "Geothing",
+	"description": "Things Geo",
+	"launch_path": "/index.html",
+	"developer": {
+		"name": "m",
+		"url": "http://pantallasnegras.net"
+	},
+	"icons": {
+		"16": "/img/icon16.png",
+		"32": "/img/icon32.png",
+		"48": "/img/icon48.png",
+		"64": "/img/icon64.png",
+		"128": "/img/icon128.png"
+	},
+	"installs_allowed_from": ["*"],
+	"default_locale": "en",
+	"permissions": {
+        "desktop-notification": {
+            "description" : "To show notifications"
+        },
+        "geolocation": {
+            "description" : "Marking out user location"
+        }
+    }
+}
