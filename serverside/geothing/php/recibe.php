@@ -6,7 +6,7 @@ if(isset($_POST) && isset($_POST['latitud']) && isset($_POST['longitud']) && iss
 	
 	if ($la != NULL && $lo != NULL && $llave != NULL && is_numeric($la) && is_numeric($lo) && hash('sha256', $llave) == '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4') {
 		
-		$conexion = mysqli_connect('localhost','root','***********','geothing');
+		$conexion = mysqli_connect('localhost','root','*********','geothing');
 		if ($conexion) {
 			$la = mysqli_real_escape_string($conexion, $la);
 			$lo = mysqli_real_escape_string($conexion, $lo);
